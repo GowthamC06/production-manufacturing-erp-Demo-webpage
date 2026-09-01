@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Company · Production Manufacturing ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Additional styles for role selection and employee dashboard */
+    
+    /* Role Selector Styles */
+    .role-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 2px 0 4px;
+    }
+    .role-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 12px 10px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--gray-200);
+      background: var(--bg-surface);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: all 0.25s var(--ease);
+      position: relative;
+    }
+    .role-btn i {
+      font-size: 1.1rem;
+    }
+    .role-btn .role-label {
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+    .role-btn:hover {
+      border-color: var(--blue-300);
+      background: var(--gray-50);
+      transform: translateY(-1px);
+    }
+    .role-btn.active {
+      border-color: var(--blue-600);
+      background: var(--blue-50);
+      color: var(--blue-600);
+      box-shadow: 0 0 0 3px var(--blue-100);
+    }
+    .role-btn.active .role-label {
+      color: var(--blue-500);
+    }
+    body.dark-mode .role-btn.active {
+      background: rgba(13, 110, 253, 0.15);
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
+    .role-btn .role-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: var(--blue-600);
+      color: #fff;
+      font-size: 0.5rem;
+      padding: 2px 7px;
+      border-radius: var(--radius-pill);
+      font-weight: 700;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.25s var(--ease);
+    }
+    .role-btn.active .role-badge {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .login-hint-role {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: -4px;
+    }
+    .login-hint-role strong {
+      color: var(--blue-600);
+    }
+
+    /* Employee Dashboard Styles */
+    .task-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .task-card {
+      background: var(--bg-surface-alt);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    }
+    .task-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+    .task-card .task-priority {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    .task-card h4 {
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+    .task-card p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .task-card .task-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .shift-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 18px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface-alt);
+      margin-bottom: 10px;
+    }
+    .shift-card .shift-time {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .shift-card .shift-status {
+      margin-left: auto;
+    }
+
+    .attendance-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    .attendance-day {
+      text-align: center;
+      padding: 10px 4px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface-alt);
+    }
+    .attendance-day .day-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: block;
+    }
+    .attendance-day .day-status {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-top: 4px;
+      display: block;
+    }
+    .attendance-day.present .day-status {
+      color: var(--green-500);
+    }
+    .attendance-day.absent .day-status {
+      color: var(--red-500);
+    }
+    .attendance-day.leave .day-status {
+      color: var(--amber-500);
+    }
+
+    .leave-balance-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .leave-balance-card {
+      background: var(--bg-surface-alt);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      text-align: center;
+    }
+    .leave-balance-card .leave-count {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .leave-balance-card .leave-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .quick-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .quick-stat-card {
+      background: var(--bg-surface-alt);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      text-align: center;
+    }
+    .quick-stat-card .stat-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .quick-stat-card .stat-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* NOTE: role-visibility rules (.admin-only / .employee-only, and the
+       body.employee-mode / body.admin-mode overrides) live in style.css
+       only now. A duplicate copy used to live here too; because this
+       inline <style> block loads after style.css, it always won the
+       cascade and it was missing the `:not(.page)` guard - so every
+       .page.employee-only section got forced to display:flex at once,
+       which made a page's own children (page-header, kpi-grid, grid-2col
+       panels) lay out as flex items in a single row instead of stacking
+       vertically. Don't redefine these rules here again. */
+
+    /* Hide search and dark mode in both modes */
+    .topbar-search,
+    #darkModeToggle {
+      display: none !important;
+    }
+
+    @media (max-width: 1200px) {
+      .task-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .leave-balance-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 640px) {
+      .task-grid {
+        grid-template-columns: 1fr;
+      }
+      .attendance-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .leave-balance-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .quick-stats-grid {
+        grid-template-columns: 1fr;
+      }
+      .role-selector {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- LOADING -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loader-ring"></div>
+    <p>Loading Your Company ERP…</p>
+  </div>
+
+  <!-- LOGIN -->
+  <section id="loginPage" class="login-page">
+    <div class="login-bg">
+      <svg class="login-bg-svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+        <defs><linearGradient id="loginGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#052c65"/><stop offset="55%" stop-color="#0d6efd"/><stop offset="100%" stop-color="#6610f2"/></linearGradient></defs>
+        <rect width="1200" height="800" fill="url(#loginGrad)"/>
+        <g opacity="0.18" stroke="#ffffff" stroke-width="2" fill="none"><path d="M-50 620 Q 300 520 600 620 T 1250 620"/><path d="M-50 680 Q 300 580 600 680 T 1250 680"/><path d="M-50 740 Q 300 640 600 740 T 1250 740"/></g>
+        <g opacity="0.12" fill="#ffffff"><circle cx="150" cy="120" r="3"/><circle cx="260" cy="90" r="2"/><circle cx="980" cy="160" r="3"/><circle cx="1080" cy="220" r="2"/><circle cx="820" cy="80" r="2"/></g>
+      </svg>
+
+      <div class="login-showcase">
+        <span class="showcase-badge"><i class="fa-solid fa-industry"></i> Production Manufacturing ERP</span>
+        <h2>Run your entire factory floor from one dashboard.</h2>
+        <p>Plan, track and optimize every stage of production — from fabric sourcing to dispatch — in real time.</p>
+
+        <div class="showcase-visual">
+          <div class="visual-card visual-card-main">
+            <div class="visual-card-head">
+              <span class="visual-dot"></span><span class="visual-dot"></span><span class="visual-dot"></span>
+              <span class="visual-card-title">Live Production</span>
+            </div>
+            <div class="visual-bars">
+              <span style="--h:38%"></span><span style="--h:64%"></span><span style="--h:52%"></span><span style="--h:88%"></span><span style="--h:60%"></span><span style="--h:76%"></span><span style="--h:45%"></span>
+            </div>
+          </div>
+          <div class="visual-card visual-card-float">
+            <i class="fa-solid fa-arrow-trend-up"></i>
+            <div><strong>98.4%</strong><span>On-time delivery</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="login-panel">
+      <div class="login-card">
+        <div class="login-brand">
+          <div class="login-logo">
+            <span style="font-weight: 800; font-size: 1.8rem; letter-spacing: -1px;">C</span>
+          </div>
+          <div>
+            <h1>Your Company</h1>
+            <p class="login-tagline">Production Manufacturing ERP · Operations Suite</p>
+          </div>
+        </div>
+        <form id="loginForm" class="login-form">
+          <!-- Role Selection -->
+          <div class="field-group">
+            <label>Login as</label>
+            <div class="role-selector">
+              <button type="button" class="role-btn active" data-role="admin">
+                <i class="fa-solid fa-user-tie"></i>
+                <span>Admin</span>
+                <span class="role-label">Full Access</span>
+                <span class="role-badge">ERP</span>
+              </button>
+              <button type="button" class="role-btn" data-role="employee">
+                <i class="fa-solid fa-user"></i>
+                <span>Employee</span>
+                <span class="role-label">My Dashboard</span>
+                <span class="role-badge">Staff</span>
+              </button>
+            </div>
+            <p class="login-hint-role">Select <strong id="roleDisplay">Admin</strong> to continue</p>
+          </div>
+
+          <div class="field-group">
+            <label for="username">Username</label>
+            <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" id="username" placeholder="e.g. admin@yourcompany.com" value="admin@yourcompany.com" autocomplete="username"></div>
+          </div>
+          <div class="field-group">
+            <label for="password">Password</label>
+            <div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="password" placeholder="Enter password" value="••••••••" autocomplete="current-password"><button type="button" class="pw-toggle" id="pwToggle" aria-label="Show password"><i class="fa-regular fa-eye"></i></button></div>
+          </div>
+          <div class="field-row">
+            <label class="checkbox-wrap"><input type="checkbox" id="rememberMe" checked><span class="checkbox-box"></span>Remember me</label>
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+          <button type="submit" class="btn-primary btn-signin" id="signInBtn"><span class="btn-label">Sign In</span><i class="fa-solid fa-arrow-right"></i></button>
+          <div class="login-divider"><span>demo access</span></div>
+          <p class="login-hint">No credentials required — click <strong>Sign In</strong> to enter.</p>
+        </form>
+        <p class="login-footer">© 2026 Your Company &middot; v3.2.0</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP SHELL -->
+  <div id="appShell" class="app-shell hidden">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-head">
+        <div class="sidebar-logo">
+          <span style="font-weight: 800; font-size: 1.5rem; letter-spacing: -1px;">C</span>
+        </div>
+        <div class="sidebar-brand-text"><strong>Your Company</strong><span>Enterprise Suite</span></div>
+        <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse"><i class="fa-solid fa-angles-left"></i></button>
+      </div>
+      <nav class="sidebar-nav" id="sidebarNav">
+        <!-- Admin Overview -->
+        <div class="nav-section-label admin-only">Overview</div>
+        <button class="nav-item admin-only active" data-page="dashboard"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></button>
+
+        <div class="nav-section-label admin-only">Sales &amp; Merchandising</div>
+        <button class="nav-item admin-only" data-page="customers"><i class="fa-solid fa-users"></i><span>Customer Management</span></button>
+        <button class="nav-item admin-only" data-page="merchandising"><i class="fa-solid fa-swatchbook"></i><span>Merchandising</span></button>
+        <button class="nav-item admin-only" data-page="fabric"><i class="fa-solid fa-scroll"></i><span>Fabric &amp; Accessories</span></button>
+
+        <div class="nav-section-label admin-only">Operations</div>
+        <button class="nav-item admin-only" data-page="inventory"><i class="fa-solid fa-warehouse"></i><span>Inventory</span></button>
+        <button class="nav-item admin-only" data-page="planning"><i class="fa-solid fa-diagram-project"></i><span>Production Planning</span></button>
+        <button class="nav-item admin-only" data-page="cutting"><i class="fa-solid fa-scissors"></i><span>Cutting</span></button>
+        <button class="nav-item admin-only" data-page="stitching"><i class="fa-solid fa-shirt"></i><span>Stitching</span></button>
+        <button class="nav-item admin-only" data-page="finishing"><i class="fa-solid fa-box-open"></i><span>Finishing</span></button>
+        <button class="nav-item admin-only" data-page="quality"><i class="fa-solid fa-magnifying-glass-chart"></i><span>Quality Control</span></button>
+        <button class="nav-item admin-only" data-page="dispatch"><i class="fa-solid fa-truck-fast"></i><span>Dispatch</span></button>
+
+        <div class="nav-section-label admin-only">Back Office</div>
+        <button class="nav-item admin-only" data-page="purchase"><i class="fa-solid fa-file-invoice"></i><span>Purchase</span></button>
+        <button class="nav-item admin-only" data-page="hr"><i class="fa-solid fa-id-card-clip"></i><span>HR &amp; Payroll</span></button>
+        <button class="nav-item admin-only" data-page="finance"><i class="fa-solid fa-sack-dollar"></i><span>Finance</span></button>
+        <button class="nav-item admin-only" data-page="reports"><i class="fa-solid fa-chart-column"></i><span>Reports</span></button>
+        <button class="nav-item admin-only" data-page="director"><i class="fa-solid fa-crown"></i><span>Director Dashboard</span></button>
+
+        <!-- Employee Section -->
+        <div class="nav-section-label employee-only">Employee</div>
+        <button class="nav-item employee-only" data-page="employee-dashboard"><i class="fa-solid fa-id-badge"></i><span>My Dashboard</span></button>
+        <button class="nav-item employee-only" data-page="tasks"><i class="fa-solid fa-list-check"></i><span>My Tasks</span></button>
+        <button class="nav-item employee-only" data-page="attendance"><i class="fa-solid fa-clock"></i><span>Attendance</span></button>
+        <button class="nav-item employee-only" data-page="leaves"><i class="fa-solid fa-calendar-day"></i><span>Leave Management</span></button>
+
+        <div class="nav-section-label">System</div>
+        <button class="nav-item" data-page="settings"><i class="fa-solid fa-gear"></i><span>Settings</span></button>
+        <button class="nav-item nav-logout" id="sidebarLogoutBtn" type="button"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></button>
+      </nav>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- MAIN -->
+    <div class="main-col">
+      <header class="topbar">
+        <!-- Search removed -->
+        <div class="topbar-actions">
+          <!-- Dark mode removed -->
+          <div class="dropdown-wrap">
+            <button class="icon-btn" id="notifBtn" aria-label="Notifications"><i class="fa-regular fa-bell"></i><span class="badge-dot" id="notifBadge">5</span></button>
+            <div class="dropdown-panel" id="notifPanel"><div class="dropdown-head"><span>Notifications</span><a href="#" id="markAllRead">Mark all read</a></div><div class="notif-list" id="notifList"></div></div>
+          </div>
+          <div class="dropdown-wrap">
+            <button class="user-chip" id="userChipBtn">
+              <img src="https://api.dicebear.com/7.x/initials/svg?seed=Arjun%20Mehta&backgroundColor=2563eb&textColor=ffffff" alt="User avatar">
+              <div class="user-chip-text"><strong id="userNameDisplay">Arjun Mehta</strong><span id="userRoleDisplay">Plant Manager</span></div>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="dropdown-panel dropdown-panel-right" id="userPanel">
+              <button class="dropdown-item" data-page="settings"><i class="fa-regular fa-user"></i> My Profile</button>
+              <button class="dropdown-item" data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
+              <button class="dropdown-item" id="userLogoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="breadcrumb-bar"><div class="breadcrumb"><i class="fa-solid fa-house"></i><span>Home</span><i class="fa-solid fa-chevron-right sep"></i><span id="breadcrumbCurrent">Dashboard</span></div><div class="breadcrumb-date" id="liveClock"></div></div>
+
+      <main class="page-content" id="pageContent">
+        <!-- ADMIN DASHBOARD -->
+        <section class="page admin-only active dashboard-page" id="page-dashboard" data-title="Dashboard">
+          <div class="page-header"><div><h1>Welcome back, Arjun 👋</h1><p>Here's what's happening across your factory floor today.</p></div><div class="page-header-actions"><button class="btn-primary"><i class="fa-solid fa-plus"></i> New Order</button></div></div>
+          <div class="kpi-grid" id="kpiGrid"></div>
+          <div class="grid-2col">
+            <div class="panel"><div class="panel-head"><h3>Order Status Split</h3></div><canvas id="chartOrderStatus" height="230"></canvas><div class="legend-grid" id="orderStatusLegend"></div></div>
+            <div class="panel"><div class="panel-head"><h3>Monthly Revenue <span class="muted">(₹ lakhs)</span></h3></div><canvas id="chartRevenue" height="230"></canvas></div>
+          </div>
+          <div class="panel"><div class="panel-head"><h3>Department Performance</h3></div><div class="dept-bars" id="deptPerformance"></div></div>
+          <div class="panel"><div class="panel-head"><h3>Recent Orders</h3><button class="link-btn" data-page="customers">View all <i class="fa-solid fa-arrow-right"></i></button></div><div class="table-scroll"><table class="data-table" id="tblRecentOrders"></table></div></div>
+          <div class="grid-2col">
+            <div class="panel"><div class="panel-head"><h3><i class="fa-solid fa-triangle-exclamation text-amber"></i> Low Stock Alerts</h3></div><div class="table-scroll"><table class="data-table" id="tblLowStock"></table></div></div>
+            <div class="panel"><div class="panel-head"><h3>Activity Feed</h3></div><div class="activity-feed" id="activityFeed"></div></div>
+          </div>
+        </section>
+
+        <!-- CUSTOMERS (Admin) -->
+        <section class="page admin-only" id="page-customers" data-title="Customer Management">
+          <div class="page-header"><div><h1>Customer Management</h1><p>Schools, corporate clients, dealers, quotations and sales orders.</p></div><div class="page-header-actions"><button class="btn-primary" id="addCustomerBtn"><i class="fa-solid fa-plus"></i> Add Customer</button></div></div>
+          <div class="tabs" id="customerTabs"><button class="tab active" data-tab="schools">Schools</button><button class="tab" data-tab="corporate">Corporate</button><button class="tab" data-tab="dealers">Dealers</button><button class="tab" data-tab="quotation">Quotations</button><button class="tab" data-tab="salesorders">Sales Orders</button><button class="tab" data-tab="orderhistory">Order History</button></div>
+          <div class="panel">
+            <div class="table-toolbar"><div class="toolbar-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="customerSearch" placeholder="Search…"></div><div class="toolbar-filters"><select id="customerFilter"><option value="all">All Status</option><option value="Active">Active</option><option value="Pending">Pending</option><option value="Inactive">Inactive</option></select><button class="btn-ghost"><i class="fa-solid fa-filter"></i> Filter</button><button class="btn-ghost"><i class="fa-solid fa-download"></i> Export</button></div></div>
+            <div class="table-scroll"><table class="data-table" id="tblCustomers"></table></div>
+            <div class="table-footer"><span id="customerCount">Showing 0 records</span><div class="pagination" id="customerPagination"></div></div>
+          </div>
+        </section>
+
+        <!-- MERCHANDISING (Admin) -->
+        <section class="page admin-only" id="page-merchandising" data-title="Merchandising">
+          <div class="page-header"><div><h1>Merchandising</h1><p>Style master, sample tracking, BOM, tech packs, sizing and colorways.</p></div><div class="page-header-actions"><button class="btn-primary"><i class="fa-solid fa-plus"></i> New Style</button></div></div>
+          <div class="kpi-grid kpi-grid-4" id="merchKpis"></div>
+          <div class="tabs" id="merchTabs"><button class="tab active" data-tab="style">Style Master</button><button class="tab" data-tab="sample">Sample Management</button><button class="tab" data-tab="bom">Bill of Materials</button><button class="tab" data-tab="techpack">Tech Pack</button><button class="tab" data-tab="sizechart">Size Chart</button><button class="tab" data-tab="colorway">Color Combination</button></div>
+          <div id="merchContent"></div>
+        </section>
+
+        <!-- FABRIC (Admin) -->
+        <section class="page admin-only" id="page-fabric" data-title="Fabric &amp; Accessories">
+          <div class="page-header"><div><h1>Fabric &amp; Accessories</h1><p>Purchase, inspection, roll tracking, GSM and shade control.</p></div><div class="page-header-actions"><button class="btn-primary"><i class="fa-solid fa-plus"></i> New Fabric Purchase</button></div></div>
+          <div class="kpi-grid kpi-grid-4" id="fabricKpis"></div>
+          <div class="panel"><div class="panel-head"><h3>Fabric Rolls <span class="muted">— barcode &amp; shade control</span></h3></div><div class="roll-grid" id="fabricRollGrid"></div></div>
+          <div class="panel"><div class="panel-head"><h3>Inspection Status</h3></div><div class="table-scroll"><table class="data-table" id="tblInspection"></table></div></div>
+          <div class="panel"><div class="panel-head"><h3>Stock Summary by Fabric Type</h3></div><canvas id="chartFabricStock" height="230"></canvas></div>
+        </section>
+
+        <!-- INVENTORY (Admin) -->
+        <section class="page admin-only inventory-page" id="page-inventory" data-title="Inventory">
+          <div class="page-header"><div><h1>Inventory</h1><p>Raw materials, accessories, WIP, finished goods across warehouses.</p></div><div class="page-header-actions"><button class="btn-primary"><i class="fa-solid fa-right-left"></i> Stock Transfer</button></div></div>
+          <div class="kpi-grid kpi-grid-4" id="inventoryKpis"></div>
+          <div class="panel"><div class="panel-head"><h3>Multi-Warehouse Overview</h3></div><div class="warehouse-grid" id="warehouseGrid"></div></div>
+          <div class="panel"><div class="table-toolbar"><div class="tabs tabs-compact" id="invTabs"><button class="tab active" data-tab="raw">Raw Materials</button><button class="tab" data-tab="acc">Accessories</button><button class="tab" data-tab="wip">WIP</button><button class="tab" data-tab="fg">Finished Goods</button></div><div class="toolbar-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="invSearch" placeholder="Search SKU…"></div></div><div class="table-scroll"><table class="data-table" id="tblInventory"></table></div></div>
+        </section>
+
+        <!-- PLANNING (Admin) -->
+        <section class="page admin-only" id="page-planning" data-title="Production Planning">
+          <div class="page-header"><div><h1>Production Planning</h1><p>Order planning, line planning, capacity planning and daily targets.</p></div><div class="page-header-actions"><button class="btn-primary"><i class="fa-solid fa-plus"></i> New Plan</button></div></div>
+          <div class="kpi-grid kpi-grid-4" id="planningKpis"></div>
+          <div class="panel"><div class="panel-head"><h3>Production Calendar <span class="muted">— July 2026</span></h3></div><div class="calendar" id="prodCalendar"></div></div>
+          <div class="panel"><div class="panel-head"><h3>Line Planning Timeline</h3></div><div class="table-scroll"><table class="data-table" id="tblLinePlanning"></table></div></div>
+        </section>
+
+        <!-- CUTTING (Admin) -->
+        <section class="page admin-only cutting-page" id="page-cutting" data-title="Cutting">
+          <div class="page-header"><div><h1>Cutting Module</h1><p>Marker planning, fabric consumption, bundle creation and tracking.</p></div><div class="page-header-actions"><button class="btn-primary"><i class="fa-solid fa-barcode"></i> Print Bundle Barcode</button></div></div>
+          <div class="kpi-grid kpi-grid-4" id="cuttingKpis"></div>
+          <div class="panel"><div class="panel-head"><h3>Bundle Tracking</h3></div><div class="table-scroll"><table class="data-table" id="tblBundles"></table></div></div>
+        </section>
+
+        <!-- STITCHING (Admin) -->
+        <section class="page admin-only" id="page-stitching" data-title="Stitching">
+          <div class="page-header"><div><h1>Stitching Module</h1><p>Line, operator &amp; machine allocation with live efficiency tracking.</p></div><div class="page-header-actions"><button class="btn-primary"><i class="fa-solid fa-user-plus"></i> Allocate Operator</button></div></div>
+          <div class="kpi-grid kpi-grid-4" id="stitchingKpis"></div>
+          <div class="grid-2col"><div class="panel"><div class="panel-head"><h3>Operator Efficiency</h3></div><div class="operator-cards" id="operatorCards"></div></div><div class="panel"><div class="panel-head"><h3>Line Efficiency Trend</h3></div><canvas id="chartStitchingEff" height="260"></canvas></div></div>
+          <div class="panel"><div class="panel-head"><h3>Daily Production &amp; Rework</h3></div><div class="table-scroll"><table class="data-table" id="tblStitching"></table></div></div>
+        </section>
+
+        <!-- FINISHING (Admin) -->
+        <section class="page admin-only" id="page-finishing" data-title="Finishing">
+          <div class="page-header"><div><h1>Finishing</h1><p>Thread cutting, ironing, folding, packing and carton management.</p></div><div class="page-header-actions"><button class="btn-primary"><i class="fa-solid fa-plus"></i> New Carton</button></div></div>
+          <div class="process-flow" id="finishingFlow"></div>
+          <div class="panel"><div class="panel-head"><h3>Packing Status</h3></div><div class="table-scroll"><table class="data-table" id="tblPackingStatus"></table></div></div>
+          <div class="panel"><div class="panel-head"><h3>Carton List</h3></div><div class="table-scroll"><table class="data-table" id="tblCartonList"></table></div></div>
+        </section>
+
+        <!-- QUALITY (Admin) -->
+        <section class="page admin-only" id="page-quality" data-title="Quality Control">
+          <div class="page-header"><div><h1>Quality Control</h1><p>Inline QC, end-line QC, AQL inspection and defect analysis.</p></div><div class="page-header-actions"><button class="btn-primary"><i class="fa-solid fa-clipboard-check"></i> New Inspection</button></div></div>
+          <div class="kpi-grid kpi-grid-4" id="qcKpis"></div>
+          <div class="grid-2col"><div class="panel"><div class="panel-head"><h3>Rejection Analysis</h3></div><canvas id="chartQCPie" height="260"></canvas></div><div class="panel"><div class="panel-head"><h3>Defect Reports</h3></div><div class="table-scroll"><table class="data-table" id="tblDefects"></table></div></div></div>
+        </section>
+
+        <!-- DISPATCH (Admin) -->
+        <section class="page admin-only" id="page-dispatch" data-title="Dispatch">
+          <div class="page-header"><div><h1>Dispatch</h1><p>Packing list, invoicing, e-way bills and delivery tracking.</p></div><div class="page-header-actions"><button class="btn-primary"><i class="fa-solid fa-file-invoice-dollar"></i> Generate Invoice</button></div></div>
+          <div class="kpi-grid kpi-grid-4" id="dispatchKpis"></div>
+          <div class="panel"><div class="panel-head"><h3>Dispatch Timeline</h3></div><div class="timeline" id="dispatchTimeline"></div></div>
+          <div class="panel"><div class="panel-head"><h3>Dispatch Table &amp; Vehicle Details</h3></div><div class="table-scroll"><table class="data-table" id="tblDispatch"></table></div></div>
+        </section>
+
+        <!-- PURCHASE (Admin) -->
+        <section class="page admin-only" id="page-purchase" data-title="Purchase">
+          <div class="page-header"><div><h1>Purchase</h1><p>RFQ, purchase orders, GRN and supplier payments.</p></div><div class="page-header-actions"><button class="btn-primary"><i class="fa-solid fa-plus"></i> New RFQ</button></div></div>
+          <div class="grid-2col"><div class="panel"><div class="panel-head"><h3>Purchase Spend Trend</h3></div><canvas id="chartPurchase" height="230"></canvas></div><div class="panel"><div class="panel-head"><h3>Vendor Performance</h3></div><div class="table-scroll"><table class="data-table" id="tblVendors"></table></div></div></div>
+          <div class="panel"><div class="panel-head"><h3>Purchase Orders / GRN / Payments</h3></div><div class="table-scroll"><table class="data-table" id="tblPurchaseOrders"></table></div></div>
+        </section>
+
+        <!-- HR (Admin) -->
+        <section class="page admin-only" id="page-hr" data-title="HR &amp; Payroll">
+          <div class="page-header"><div><h1>HR &amp; Payroll</h1><p>Employee records, biometric attendance, piece rate, PF &amp; ESI.</p></div><div class="page-header-actions"><button class="btn-primary"><i class="fa-solid fa-user-plus"></i> Add Employee</button></div></div>
+          <div class="kpi-grid kpi-grid-4" id="hrKpis"></div>
+          <div class="grid-2col"><div class="panel"><div class="panel-head"><h3>Attendance — This Week</h3></div><canvas id="chartAttendance" height="230"></canvas></div><div class="panel"><div class="panel-head"><h3>Payroll Breakdown</h3></div><canvas id="chartPayroll" height="230"></canvas></div></div>
+          <div class="panel"><div class="panel-head"><h3>Employee Records</h3></div><div class="table-scroll"><table class="data-table" id="tblEmployees"></table></div></div>
+        </section>
+
+        <!-- FINANCE (Admin) -->
+        <section class="page admin-only" id="page-finance" data-title="Finance">
+          <div class="page-header"><div><h1>Finance</h1><p>GST, accounts, banking, expenses, P&amp;L and balance sheet.</p></div><div class="page-header-actions"><button class="btn-primary"><i class="fa-solid fa-plus"></i> New Expense</button></div></div>
+          <div class="kpi-grid kpi-grid-4" id="financeKpis"></div>
+          <div class="grid-2col"><div class="panel"><div class="panel-head"><h3>Income vs Expense</h3></div><canvas id="chartIncome" height="230"></canvas></div><div class="panel"><div class="panel-head"><h3>Expense Split</h3></div><canvas id="chartExpense" height="230"></canvas></div></div>
+          <div class="panel"><div class="panel-head"><h3>Balance Sheet Snapshot</h3></div><div class="table-scroll"><table class="data-table" id="tblBalanceSheet"></table></div></div>
+        </section>
+
+        <!-- REPORTS (Admin) -->
+        <section class="page admin-only" id="page-reports" data-title="Reports">
+          <div class="page-header"><div><h1>Reports</h1><p>Production efficiency, costing, profitability and daily MIS.</p></div></div>
+          <div class="report-grid" id="reportGrid"></div>
+        </section>
+
+        <!-- DIRECTOR (Admin) -->
+        <section class="page admin-only director-page" id="page-director" data-title="Director Dashboard">
+          <div class="page-header director-header"><div><h1><i class="fa-solid fa-crown text-gold"></i> Executive Dashboard</h1><p>Real-time factory-wide performance for leadership.</p></div><div class="page-header-actions"><button class="btn-primary"><i class="fa-solid fa-arrows-rotate"></i> Refresh Live Data</button></div></div>
+          <div class="kpi-grid kpi-grid-exec" id="directorKpis"></div>
+          <div class="grid-2col"><div class="panel"><div class="panel-head"><h3>Live Production by Line</h3></div><div class="live-lines" id="liveLines"></div></div><div class="panel"><div class="panel-head"><h3>Cash Flow Overview</h3></div><div class="chart-viewport"><canvas id="chartCashflow" height="250"></canvas></div></div></div>
+          <div class="grid-2col"><div class="panel director-delayed-panel"><div class="panel-head"><h3>Delayed Orders</h3></div><div class="table-scroll"><table class="data-table" id="tblDelayed"></table></div></div><div class="panel"><div class="panel-head"><h3>Employee Performance Leaderboard</h3></div><div class="table-scroll"><table class="data-table" id="tblLeaderboard"></table></div></div></div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- EMPLOYEE DASHBOARD -->
+        <!-- ============================================================= -->
+        <section class="page employee-only" id="page-employee-dashboard" data-title="My Dashboard">
+          <div class="page-header">
+            <div>
+              <h1>Welcome back, Priya 👋</h1>
+              <p>Here's your personal dashboard — track your tasks, attendance, and performance.</p>
+            </div>
+            <div class="page-header-actions">
+              <button class="btn-primary" onclick="Employee.punchIn()"><i class="fa-solid fa-fingerprint"></i> <span id="punchBtnText">Punch In</span></button>
+            </div>
+          </div>
+
+          <!-- Employee KPIs -->
+          <div class="kpi-grid" id="employeeKpis"></div>
+
+          <div class="grid-2col">
+            <!-- Today's Tasks -->
+            <div class="panel">
+              <div class="panel-head"><h3>Today's Tasks</h3><button class="link-btn" data-page="tasks">View all <i class="fa-solid fa-arrow-right"></i></button></div>
+              <div id="employeeTasks"></div>
+            </div>
+            <!-- Quick Stats -->
+            <div class="panel">
+              <div class="panel-head"><h3>Quick Stats</h3></div>
+              <div id="employeeQuickStats"></div>
+            </div>
+          </div>
+
+          <div class="grid-2col">
+            <!-- Attendance This Week -->
+            <div class="panel">
+              <div class="panel-head"><h3>Attendance This Week</h3></div>
+              <div class="attendance-grid" id="employeeAttendance"></div>
+            </div>
+            <!-- Leave Balance -->
+            <div class="panel">
+              <div class="panel-head"><h3>Leave Balance</h3></div>
+              <div class="leave-balance-grid" id="employeeLeaveBalance"></div>
+            </div>
+          </div>
+
+          <!-- Shift Info -->
+          <div class="panel">
+            <div class="panel-head"><h3>Current Shift</h3></div>
+            <div class="shift-card" id="employeeShift">
+              <div class="shift-time"><i class="fa-regular fa-clock"></i> 08:00 AM - 05:00 PM</div>
+              <div>Line B · Stitching Operator</div>
+              <div class="shift-status"><span class="status-pill status-green">Active</span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TASKS (Employee) -->
+        <section class="page employee-only" id="page-tasks" data-title="My Tasks">
+          <div class="page-header"><div><h1>My Tasks</h1><p>All tasks assigned to you across production lines.</p></div></div>
+          <div class="panel">
+            <div class="table-toolbar">
+              <div class="toolbar-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="taskSearch" placeholder="Search tasks…"></div>
+              <div class="toolbar-filters">
+                <select id="taskFilter"><option value="all">All Status</option><option value="Pending">Pending</option><option value="In Progress">In Progress</option><option value="Completed">Completed</option></select>
+              </div>
+            </div>
+            <div class="table-scroll"><table class="data-table" id="tblTasks"></table></div>
+          </div>
+        </section>
+
+        <!-- ATTENDANCE (Employee) -->
+        <section class="page employee-only" id="page-attendance" data-title="Attendance">
+          <div class="page-header"><div><h1>Attendance</h1><p>Your daily attendance records and summary.</p></div></div>
+          <div class="kpi-grid kpi-grid-4" id="attendanceKpis"></div>
+          <div class="panel">
+            <div class="panel-head"><h3>Monthly Attendance <span class="muted">— July 2026</span></h3></div>
+            <div class="attendance-grid" id="monthlyAttendance"></div>
+          </div>
+        </section>
+
+        <!-- LEAVE MANAGEMENT (Employee) -->
+        <section class="page employee-only" id="page-leaves" data-title="Leave Management">
+          <div class="page-header"><div><h1>Leave Management</h1><p>Apply for leave, check balance, and view history.</p></div><div class="page-header-actions"><button class="btn-primary" onclick="Employee.applyLeave()"><i class="fa-solid fa-plus"></i> Apply Leave</button></div></div>
+          <div class="grid-2col">
+            <div class="panel"><div class="panel-head"><h3>Leave Balance</h3></div><div class="leave-balance-grid" id="leaveBalanceGrid"></div></div>
+            <div class="panel"><div class="panel-head"><h3>Leave History</h3></div><div class="table-scroll"><table class="data-table" id="tblLeaveHistory"></table></div></div>
+          </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="page" id="page-settings" data-title="Settings">
+          <div class="page-header"><div><h1>Settings</h1><p>Company profile, factory details, notifications and security.</p></div></div>
+          <div class="settings-layout">
+            <div class="settings-nav" id="settingsNav"><button class="settings-nav-item active" data-tab="company">Company Info</button><button class="settings-nav-item" data-tab="factory">Factory Details</button><button class="settings-nav-item" data-tab="profile">Profile</button><button class="settings-nav-item" data-tab="notif">Notifications</button><button class="settings-nav-item" data-tab="theme">Theme</button><button class="settings-nav-item" data-tab="language">Language</button><button class="settings-nav-item" data-tab="backup">Backup</button><button class="settings-nav-item" data-tab="security">Security</button><button class="settings-nav-item" data-tab="account">Account</button></div>
+            <div class="settings-content" id="settingsContent"></div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer"><span>© 2026 Your Company. All rights reserved.</span><span class="app-footer-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Support</a><span class="version-tag">v3.2.0</span></span></footer>
+    </div>
+  </div>
+
+  <!-- TOASTS & MODAL -->
+  <div class="toast-container" id="toastContainer"></div>
+  <div class="modal-overlay" id="modalOverlay"><div class="modal-box"><div class="modal-head"><h3 id="modalTitle">Modal</h3><button class="icon-btn" id="modalCloseBtn"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body" id="modalBody"></div></div></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+  <script>
+    // ================================================================
+    // EMPLOYEE MODULE - Added to existing script
+    // ================================================================
+    const Employee = {
+      profile: {
+        name: 'Priya Sharma',
+        role: 'Stitching Operator',
+        line: 'Line B',
+        employeeId: 'EMP-1245',
+        department: 'Stitching',
+        joinDate: '15 Mar 2023'
+      },
+
+      attendance: {
+        week: [
+          { day: 'Mon', status: 'present' },
+          { day: 'Tue', status: 'present' },
+          { day: 'Wed', status: 'present' },
+          { day: 'Thu', status: 'present' },
+          { day: 'Fri', status: 'present' },
+          { day: 'Sat', status: 'leave' },
+          { day: 'Sun', status: 'absent' }
+        ],
+        month: [
+          { date: 1, status: 'present' }, { date: 2, status: 'present' }, { date: 3, status: 'present' },
+          { date: 4, status: 'present' }, { date: 5, status: 'present' }, { date: 6, status: 'leave' },
+          { date: 7, status: 'present' }, { date: 8, status: 'present' }, { date: 9, status: 'present' },
+          { date: 10, status: 'present' }, { date: 11, status: 'present' }, { date: 12, status: 'present' },
+          { date: 13, status: 'leave' }, { date: 14, status: 'present' }, { date: 15, status: 'present' },
+          { date: 16, status: 'present' }, { date: 17, status: 'present' }, { date: 18, status: 'present' },
+          { date: 19, status: 'present' }, { date: 20, status: 'present' }, { date: 21, status: 'present' },
+          { date: 22, status: 'present' }, { date: 23, status: '' }, { date: 24, status: '' },
+          { date: 25, status: '' }, { date: 26, status: '' }, { date: 27, status: '' },
+          { date: 28, status: '' }, { date: 29, status: '' }, { date: 30, status: '' },
+          { date: 31, status: '' }
+        ]
+      },
+
+      leaveBalance: { casual: 12, sick: 8, earned: 15, paid: 5 },
+
+      tasks: [
+        { id: 'TASK-001', title: 'Complete 100 pcs of Style PT08', priority: 'High', status: 'In Progress', due: '22 Jul' },
+        { id: 'TASK-002', title: 'Quality check for batch BDL-9004', priority: 'High', status: 'Pending', due: '22 Jul' },
+        { id: 'TASK-003', title: 'Machine maintenance check', priority: 'Medium', status: 'Completed', due: '21 Jul' },
+        { id: 'TASK-004', title: 'Update production log', priority: 'Low', status: 'Pending', due: '23 Jul' },
+        { id: 'TASK-005', title: 'Assist new operator training', priority: 'Medium', status: 'In Progress', due: '24 Jul' }
+      ],
+
+      leaveHistory: [
+        { id: 'LV-001', type: 'Sick Leave', from: '10 Jul 2026', to: '11 Jul 2026', status: 'Approved' },
+        { id: 'LV-002', type: 'Casual Leave', from: '18 Jun 2026', to: '18 Jun 2026', status: 'Approved' },
+        { id: 'LV-003', type: 'Earned Leave', from: '01 Jun 2026', to: '03 Jun 2026', status: 'Approved' },
+        { id: 'LV-004', type: 'Paid Leave', from: '15 May 2026', to: '16 May 2026', status: 'Rejected' }
+      ],
+
+      quickStats: [
+        { label: 'Tasks Completed', value: '18', icon: 'fa-check-circle', color: '#10b981' },
+        { label: 'Pending Tasks', value: '3', icon: 'fa-clock', color: '#f59e0b' },
+        { label: 'Attendance Rate', value: '94%', icon: 'fa-percent', color: '#0d6efd' },
+        { label: 'Leave Used', value: '12 days', icon: 'fa-calendar-day', color: '#6610f2' }
+      ],
+
+      renderDashboard() {
+        const kpis = [
+          { icon: 'fa-list-check', label: 'My Tasks', value: this.tasks.filter(t => t.status !== 'Completed').length, color: 'blue' },
+          { icon: 'fa-check-circle', label: 'Completed Today', value: 4, color: 'green' },
+          { icon: 'fa-clock', label: 'Attendance Rate', value: 94, suffix: '%', color: 'indigo', progress: 94 },
+          { icon: 'fa-calendar-day', label: 'Leave Balance', value: 40, suffix: ' days', color: 'amber' }
+        ];
+        document.getElementById('employeeKpis').innerHTML = kpis.map(k => `
+          <div class="kpi-card">
+            <div class="kpi-icon" style="color:${k.color}; background:${k.color}22;"><i class="fa-solid ${k.icon}"></i></div>
+            <div class="kpi-label">${k.label}</div>
+            <div class="kpi-value" data-count="${k.value}" data-suffix="${k.suffix || ''}">0</div>
+            ${k.progress ? `<div class="kpi-progress"><div class="kpi-progress-bar" data-progress="${k.progress}" style="background:${k.color}"></div></div>` : ''}
+          </div>
+        `).join('');
+
+        // Tasks
+        document.getElementById('employeeTasks').innerHTML = this.tasks.filter(t => t.status !== 'Completed').slice(0, 4).map(t => `
+          <div class="task-card">
+            <span class="task-priority" style="background:${t.priority === 'High' ? 'var(--red-100)' : t.priority === 'Medium' ? 'var(--amber-100)' : 'var(--gray-100)'}; color:${t.priority === 'High' ? '#dc2626' : t.priority === 'Medium' ? '#b45309' : 'var(--gray-600)'};">${t.priority}</span>
+            <h4>${t.title}</h4>
+            <p>${t.id}</p>
+            <div class="task-meta"><span>Due: ${t.due}</span><span class="status-pill status-${t.status === 'Completed' ? 'green' : t.status === 'In Progress' ? 'blue' : 'amber'}">${t.status}</span></div>
+          </div>
+        `).join('');
+
+        // Quick Stats
+        document.getElementById('employeeQuickStats').innerHTML = `
+          <div class="quick-stats-grid">
+            ${this.quickStats.map(s => `
+              <div class="quick-stat-card">
+                <div class="stat-value" style="color:${s.color};">${s.value}</div>
+                <div class="stat-label"><i class="fa-solid ${s.icon}" style="color:${s.color};"></i> ${s.label}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+
+        // Attendance Week
+        document.getElementById('employeeAttendance').innerHTML = this.attendance.week.map(d => `
+          <div class="attendance-day ${d.status}">
+            <span class="day-label">${d.day}</span>
+            <span class="day-status"><i class="fa-solid ${d.status === 'present' ? 'fa-check' : d.status === 'leave' ? 'fa-calendar-day' : 'fa-xmark'}"></i></span>
+          </div>
+        `).join('');
+
+        // Leave Balance
+        document.getElementById('employeeLeaveBalance').innerHTML = Object.entries(this.leaveBalance).map(([key, val]) => `
+          <div class="leave-balance-card">
+            <div class="leave-count">${val}</div>
+            <div class="leave-label">${key.charAt(0).toUpperCase() + key.slice(1)}</div>
+          </div>
+        `).join('');
+
+        // Counters
+        document.querySelectorAll('#employeeKpis .kpi-value[data-count]').forEach(el => {
+          const target = parseFloat(el.dataset.count);
+          const suffix = el.dataset.suffix || '';
+          let current = 0;
+          const step = target / 40;
+          const interval = setInterval(() => {
+            current += step;
+            if (current >= target) { current = target; clearInterval(interval); }
+            el.textContent = Math.round(current) + suffix;
+          }, 25);
+        });
+        document.querySelectorAll('#employeeKpis .kpi-progress-bar[data-progress]').forEach(el => {
+          setTimeout(() => { el.style.width = el.dataset.progress + '%'; }, 200);
+        });
+      },
+
+      renderTasks() {
+        const search = (document.getElementById('taskSearch')?.value || '').toLowerCase();
+        const filter = document.getElementById('taskFilter')?.value || 'all';
+        let tasks = this.tasks;
+        if (search) tasks = tasks.filter(t => t.title.toLowerCase().includes(search) || t.id.toLowerCase().includes(search));
+        if (filter !== 'all') tasks = tasks.filter(t => t.status === filter);
+
+        const statusMap = { 'Pending': 'amber', 'In Progress': 'blue', 'Completed': 'green' };
+        document.getElementById('tblTasks').innerHTML = `
+          <thead><tr><th>Task ID</th><th>Title</th><th>Priority</th><th>Status</th><th>Due Date</th><th>Actions</th></tr></thead>
+          <tbody>${tasks.map(t => `
+            <tr>
+              <td>${t.id}</td>
+              <td>${t.title}</td>
+              <td><span style="color:${t.priority === 'High' ? '#dc2626' : t.priority === 'Medium' ? '#b45309' : 'var(--text-muted)'};">${t.priority}</span></td>
+              <td><span class="status-pill status-${statusMap[t.status] || 'gray'}">${t.status}</span></td>
+              <td>${t.due}</td>
+              <td><button class="btn-ghost" style="padding:4px 10px;" onclick="Employee.updateTaskStatus('${t.id}')">Update</button></td>
+            </tr>
+          `).join('')}</tbody>
+        `;
+      },
+
+      updateTaskStatus(id) {
+        const task = this.tasks.find(t => t.id === id);
+        if (!task) return;
+        const statuses = ['Pending', 'In Progress', 'Completed'];
+        const idx = statuses.indexOf(task.status);
+        task.status = statuses[(idx + 1) % statuses.length];
+        toast(`Task ${id} updated to ${task.status}`, 'success');
+        this.renderTasks();
+      },
+
+      renderAttendance() {
+        const present = this.attendance.month.filter(d => d.status === 'present').length;
+        const leave = this.attendance.month.filter(d => d.status === 'leave').length;
+        const absent = this.attendance.month.filter(d => d.status === 'absent').length;
+        const total = this.attendance.month.filter(d => d.status !== '').length;
+
+        document.getElementById('attendanceKpis').innerHTML = `
+          <div class="kpi-card"><div class="kpi-icon" style="color:#10b981;background:#10b98122;"><i class="fa-solid fa-check"></i></div><div class="kpi-label">Present</div><div class="kpi-value">${present}</div></div>
+          <div class="kpi-card"><div class="kpi-icon" style="color:#f59e0b;background:#f59e0b22;"><i class="fa-solid fa-calendar-day"></i></div><div class="kpi-label">Leave</div><div class="kpi-value">${leave}</div></div>
+          <div class="kpi-card"><div class="kpi-icon" style="color:#dc2626;background:#dc262622;"><i class="fa-solid fa-xmark"></i></div><div class="kpi-label">Absent</div><div class="kpi-value">${absent}</div></div>
+          <div class="kpi-card"><div class="kpi-icon" style="color:#0d6efd;background:#0d6efd22;"><i class="fa-solid fa-percent"></i></div><div class="kpi-label">Attendance %</div><div class="kpi-value">${total ? Math.round(present/total*100) : 0}%</div></div>
+        `;
+
+        document.getElementById('monthlyAttendance').innerHTML = this.attendance.month.map(d => `
+          <div class="attendance-day ${d.status || ''}">
+            <span class="day-label">${d.date}</span>
+            <span class="day-status">${d.status === 'present' ? '✓' : d.status === 'leave' ? 'L' : d.status === 'absent' ? '✗' : ''}</span>
+          </div>
+        `).join('');
+      },
+
+      renderLeaveManagement() {
+        const lb = document.getElementById('leaveBalanceGrid');
+        if (lb) {
+          lb.innerHTML = Object.entries(this.leaveBalance).map(([key, val]) => `
+            <div class="leave-balance-card">
+              <div class="leave-count">${val}</div>
+              <div class="leave-label">${key.charAt(0).toUpperCase() + key.slice(1)}</div>
+            </div>
+          `).join('');
+        }
+
+        const statusMap = { 'Approved': 'green', 'Rejected': 'red', 'Pending': 'amber' };
+        const historyTable = document.getElementById('tblLeaveHistory');
+        if (historyTable) {
+          historyTable.innerHTML = `
+            <thead><tr><th>Leave ID</th><th>Type</th><th>From</th><th>To</th><th>Status</th></tr></thead>
+            <tbody>${this.leaveHistory.map(l => `
+              <tr>
+                <td>${l.id}</td>
+                <td>${l.type}</td>
+                <td>${l.from}</td>
+                <td>${l.to}</td>
+                <td><span class="status-pill status-${statusMap[l.status] || 'gray'}">${l.status}</span></td>
+              </tr>
+            `).join('')}</tbody>
+          `;
+        }
+      },
+
+      punchIn() {
+        const btn = document.getElementById('punchBtnText');
+        if (btn.textContent === 'Punch In') {
+          btn.textContent = 'Punched In';
+          btn.style.color = 'var(--green-500)';
+          toast('Punched in successfully!', 'success');
+        } else {
+          btn.textContent = 'Punch In';
+          btn.style.color = '';
+          toast('Punched out successfully.', 'info');
+        }
+      },
+
+      applyLeave() {
+        toast('Leave application form would open here.', 'info', 'fa-calendar-day');
+      }
+    };
+
+    // ================================================================
+    // ROLE MANAGEMENT - Extend existing login
+    // ================================================================
+    (function() {
+      // Role selection
+      document.querySelectorAll('.role-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          const role = this.dataset.role;
+          document.getElementById('roleDisplay').textContent = role === 'admin' ? 'Admin' : 'Employee';
+          document.getElementById('username').value = role === 'admin' ? 'admin@yourcompany.com' : 'priya@yourcompany.com';
+        });
+      });
+
+      // Extend login handler
+      const loginForm = document.getElementById('loginForm');
+      
+      loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const role = document.querySelector('.role-btn.active')?.dataset.role || 'admin';
+        const btn = document.getElementById('signInBtn');
+        btn.querySelector('.btn-label').textContent = 'Signing in…';
+        btn.querySelector('i').className = 'fa-solid fa-spinner fa-spin';
+
+        setTimeout(() => {
+          const loginPage = document.getElementById('loginPage');
+          const appShell = document.getElementById('appShell');
+          
+          loginPage.style.opacity = '0';
+          loginPage.style.transform = 'scale(0.98)';
+          loginPage.style.transition = 'all 0.4s ease';
+          
+          setTimeout(() => {
+            loginPage.classList.add('hidden');
+            appShell.classList.remove('hidden');
+            
+            // Set role mode on body
+            document.body.classList.remove('admin-mode', 'employee-mode');
+            document.body.classList.add(role === 'admin' ? 'admin-mode' : 'employee-mode');
+            
+            // Update user display
+            if (role === 'employee') {
+              document.getElementById('userNameDisplay').textContent = 'Priya Sharma';
+              document.getElementById('userRoleDisplay').textContent = 'Stitching Operator';
+              // Show employee dashboard
+              goToPage('employee-dashboard');
+              Employee.renderDashboard();
+              toast('Welcome, Priya! Employee dashboard loaded.', 'success');
+            } else {
+              document.getElementById('userNameDisplay').textContent = 'Arjun Mehta';
+              document.getElementById('userRoleDisplay').textContent = 'Plant Manager';
+              goToPage('dashboard');
+              toast('Welcome back, Arjun! Admin dashboard loaded.', 'success');
+            }
+
+            if (typeof window.renderNotifications === 'function') {
+              window.renderNotifications();
+            }
+          }, 400);
+        }, 700);
+      });
+    })();
+  </script>
+</body>
+</html>
